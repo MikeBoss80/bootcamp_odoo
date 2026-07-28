@@ -1,0 +1,11 @@
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.log
+*.pth
+odoo_out.txt
+odoo_err.txt
+.idea/
+.vscode/
+.DS_Store
