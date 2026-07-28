@@ -9,3 +9,4 @@ odoo_err.txt
 .idea/
 .vscode/
 .DS_Store
+.env

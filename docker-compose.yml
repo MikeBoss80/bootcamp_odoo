@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:15
+    container_name: odoo-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  odoo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: odoo-app
+    depends_on:
+      - db
+    restart: unless-stopped
+    ports:
+      - "8069:8069"
+    volumes:
+      - ./custom_addons:/mnt/extra-addons
+      - ./config/odoo.conf:/etc/odoo/odoo.conf
+      - odoo_data:/var/lib/odoo
+
+volumes:
+  postgres_data:
+  odoo_data:
