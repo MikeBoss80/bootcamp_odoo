@@ -238,3 +238,21 @@ https://xxxxx-8069.app.github.dev
 Variables de entorno
 
 
+Tu rutina diaria queda así:
+Inicio del día
+cd /workspaces/bootcamp_odoo
+
+docker compose start
+
+docker compose ps
+
+curl http://localhost:8069/web/login
+
+Si responde:
+
+Abrir URL pública.
+
+Fin del día
+docker compose stop
+
+Cerrar Codespace.
