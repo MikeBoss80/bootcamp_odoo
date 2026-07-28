@@ -7,6 +7,9 @@
         <field name="arch" type="xml">
             <tree>
                 <field name="name"/>
+                <field name="genero"/>
+                <field name="isbn"/>
+                <field name="disponible"/>
                 <field name="autor"/>
                 <field name="fecha_publicacion"/>
             </tree>
@@ -22,8 +25,12 @@
                 <sheet>
                     <group>
                         <field name="name"/>
+                        <field name="isbn"/>
+                        <field name="genero"/>
+                        <field name="disponible"/>
                         <field name="autor"/>
                         <field name="fecha_publicacion"/>
+                        <field name="fecha_ingreso"/>
                     </group>
                 </sheet>
             </form>

@@ -1,3 +1,26 @@
+🚀 Levantar servicios
+docker compose up -d
+🔄 Reiniciar Odoo (después de actualizar módulos)
+docker compose restart odoo
+🛑 Cerrar servicios (sin borrar datos)
+docker compose down
+Luego para volver a levantar:
+docker compose up -d
+📋 Ver logs de Odoo
+docker compose logs -f odoo
+Ctrl + C para salir de los logs.
+📦 Actualizar todos los módulos desde terminal
+docker compose run --rm odoo -d postgres -u all --stop-after-init
+docker compose restart odoo
+(Donde postgres es el nombre de tu base de datos en .env)
+⚠️ No tocar si no quieres borrar datos
+- docker compose down -v → borra volúmenes (base de datos + archivos)
+- docker rmi bootcamp_odoo-odoo → borra la imagen
+- docker system prune -a → borra todo Docker
+El comando seguro para cerrar es solo 
+- docker compose down.
+
+
 Construir e iniciar
 docker compose up --build
 
