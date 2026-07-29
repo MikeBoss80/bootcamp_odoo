@@ -237,6 +237,7 @@ docker compose run --rm odoo shell -d postgres
 | `__init__.py` raíz importando `models` | ✅ |
 | `models/__init__.py` importando `libro` y `autor` | ✅ |
 | Modelo `Editorial` creado (reto del día) | ⬜ |
+| Decisión tomada sobre si se mantiene `name` o se migra a `titulo` | ⬜ |
 
 ### 🧪 Reto
 Agrega un tercer modelo **Editorial** al módulo Biblioteca, con su propio archivo en `models/`, su import en `models/__init__.py`, y una entrada en el manifest para su futura vista. Verifica en el shell que Odoo lo reconoce tras un `-u biblioteca`.
@@ -314,15 +315,17 @@ class Libro(models.Model):
 
 ### ✅ Tu modelo ACTUAL de libro vs el modelo de la guía
 
+> **Nota de seguimiento:** la implementación real del proyecto evolucionó respecto a la guía original. En esta versión ya existen `name`, `isbn`, `disponible`, `genero`, `autor`, `fecha_publicacion` y `fecha_ingreso`. Lo que falta decidir es si se mantiene este enfoque o si se refactoriza para alinearlo con la nomenclatura de la guía (`titulo`, `anio_publicacion`, etc.).
+
 | Campo | Tu modelo actual | Guía (Día 3) | Acción |
 |-------|-----------------|--------------|--------|
-| `name` / `titulo` | `name` (funciona como `_rec_name` por defecto) | `titulo` con `_rec_name` | ⬜ Pendiente |
-| `isbn` | ❌ No existe | `fields.Char('ISBN')` | ⬜ Agregar |
-| `anio_publicacion` | ❌ No existe (tienes `fecha_publicacion`) | `fields.Integer('Año publicación')` | ⬜ Agregar |
-| `disponible` | ❌ No existe | `fields.Boolean(default=True)` | ⬜ Agregar |
-| `genero` (Selection) | ❌ No existe | `ficcion, tecnico, historia` | ⬜ Agregar |
-| `fecha_ingreso` | ❌ No existe | `fields.Date(default=today)` | ⬜ Agregar |
-| `autor` (Many2one) | ✅ Lo tienes | No lo pide aún (Semana 2) | ✅ Dejar |
+| `name` / `titulo` | `name` con `_rec_name` implícito | `titulo` con `_rec_name` explícito | ⬜ Definir si se refactoriza |
+| `isbn` | ✅ Existe | `fields.Char('ISBN')` | ✅ Mantener |
+| `anio_publicacion` | ❌ No existe (actualmente usas `fecha_publicacion`) | `fields.Integer('Año publicación')` | ⬜ Pendiente si se sigue la guía |
+| `disponible` | ✅ Existe | `fields.Boolean(default=True)` | ✅ Mantener |
+| `genero` (Selection) | ✅ Existe con más opciones que la guía | `ficcion, tecnico, historia` | ✅ Mantener o simplificar |
+| `fecha_ingreso` | ✅ Existe | `fields.Date(default=today)` | ✅ Mantener |
+| `autor` (Many2one) | ✅ Existe | No lo pide aún (Semana 2) | ✅ Mantener |
 
 ### 🐳 Comandos Docker
 
@@ -571,11 +574,11 @@ access_biblioteca_libro_lector,biblioteca.libro.lector,model_biblioteca_libro,bi
 | Concepto | Estado |
 |----------|--------|
 | `ir.model.access.csv` con permisos básicos | ✅ |
-| Grupo "Biblioteca / Lector" | ⬜ Pendiente |
-| Grupo "Biblioteca / Bibliotecario" | ⬜ Pendiente |
+| Grupo "Biblioteca / Lector" | ✅ |
+| Grupo "Biblioteca / Bibliotecario" | ✅ |
 | Regla: Lector solo ve libros disponibles | ⬜ Pendiente |
-| Archivo `security/biblioteca_security.xml` | ⬜ Pendiente |
-| Permisos para modelo Autor | ⬜ Pendiente |
+| Archivo `security/biblioteca_security.xml` | ✅ |
+| Permisos para modelo Autor | ✅ |
 
 ### 🐳 Comandos Docker
 
@@ -593,7 +596,7 @@ docker compose restart odoo
 4. Verifica que solo ve libros disponibles y no puede crear
 
 ### 🧪 Reto
-Agrega líneas de acceso para el modelo **Autor**: el grupo Lector solo puede leer, el grupo Bibliotecario puede crear y editar (pero no borrar). Verifica con usuarios de prueba.
+Agrega la regla de registro para el grupo **Lector** para que solo vea libros disponibles. Si decides seguir la guía al pie de la letra, también podrás crear el modelo **Editorial** y normalizar el modelo `Libro` a `titulo` y `anio_publicacion`; si no, deja documentada la decisión y continúa con la estructura actual.
 
 ### ⚠️ Errores comunes
 - Crear un modelo nuevo y olvidar su línea en `ir.model.access.csv` — queda invisible
@@ -653,11 +656,18 @@ biblioteca/
 | Modelo Editorial adicional (Reto Día 2) | ⬜ |
 | Ambos modelos tienen vista tree + form | ✅ |
 | Menú raíz "Biblioteca" con submenús funcionales | ✅ |
-| Grupo "Lector" (solo lectura) | ⬜ |
-| Grupo "Bibliotecario" (lectura + escritura, sin borrar) | ⬜ |
+| Grupo "Lector" (solo lectura) | ✅ |
+| Grupo "Bibliotecario" (lectura + escritura, sin borrar) | ✅ |
 | Regla: Lector solo ve libros disponibles | ⬜ |
 | Probado con usuario de prueba no administrador | ⬜ |
 | README.md documentado | ⬜ |
+
+### 📌 Pendientes reales para continuar
+
+- Crear el modelo `biblioteca.editorial` con su archivo Python, import y, si aplica, sus vistas y permisos.
+- Definir si el modelo `Libro` se queda con `name` o se migra a `titulo` para alinearse con la guía.
+- Agregar la regla `ir.rule` para que el grupo `Lector` solo vea libros disponibles.
+- Completar el README del módulo con instalación, uso y decisiones de diseño.
 
 ### 🐳 Comandos Docker — prueba desde cero
 
