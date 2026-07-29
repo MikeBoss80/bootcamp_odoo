@@ -1,12 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-<menuitem id="biblioteca_menu" name="Biblioteca" sequence="10"/>
+    <!-- Menú principal -->
+    <menuitem
+        id="biblioteca_menu"
+        name="Biblioteca"
+        sequence="10"/>
 
-<menuitem id="biblioteca_libro_menu" name="Libros"
-    parent="biblioteca_menu" action="biblioteca_libro_action" sequence="10"/>
+    <!-- Submenús -->
+    <menuitem
+        id="biblioteca_libro_menu"
+        name="Libros"
+        parent="biblioteca_menu"
+        action="biblioteca_libro_action"
+        sequence="10"/>
 
-<menuitem id="biblioteca_autor_menu" name="Autores"
-    parent="biblioteca_menu" action="biblioteca_autor_action" sequence="20"/>
+    <menuitem
+        id="biblioteca_autor_menu"
+        name="Autores"
+        parent="biblioteca_menu"
+        action="biblioteca_autor_action"
+        sequence="20"/>
 
 </odoo>
