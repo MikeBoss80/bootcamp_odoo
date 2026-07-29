@@ -14,11 +14,14 @@
         "base",
     ],
 
-    "data": [
+   "data": [
         "security/biblioteca_security.xml",
         "security/ir.model.access.csv",
+
         "views/libro_views.xml",
         "views/autor_views.xml",
+        "views/editorial_views.xml",
+
         "views/menus.xml",
     ],
 

@@ -3,3 +3,5 @@ access_biblioteca_libro_bibliotecario,biblioteca.libro.bibliotecario,model_bibli
 access_biblioteca_libro_lector,biblioteca.libro.lector,model_biblioteca_libro,biblioteca.group_lector,1,0,0,0
 access_biblioteca_autor_bibliotecario,biblioteca.autor.bibliotecario,model_biblioteca_autor,biblioteca.group_bibliotecario,1,1,1,0
 access_biblioteca_autor_lector,biblioteca.autor.lector,model_biblioteca_autor,biblioteca.group_lector,1,0,0,0
+access_biblioteca_editorial_bibliotecario,biblioteca.editorial.bibliotecario,model_biblioteca_editorial,biblioteca.group_bibliotecario,1,1,1,0
+access_biblioteca_editorial_lector,biblioteca.editorial.lector,model_biblioteca_editorial,biblioteca.group_lector,1,0,0,0

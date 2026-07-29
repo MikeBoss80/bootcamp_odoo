@@ -1,24 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Categoría de la aplicación -->
+    <!-- ==========================================================
+         Categoría del módulo
+         Agrupa los permisos bajo "Biblioteca" en los usuarios.
+         ========================================================== -->
     <record id="module_category_biblioteca" model="ir.module.category">
         <field name="name">Biblioteca</field>
         <field name="description">Gestión de Biblioteca</field>
         <field name="sequence">30</field>
     </record>
 
-    <!-- Grupo Lector -->
+
+    <!-- ==========================================================
+         Grupo: Lector
+         - Solo puede consultar información.
+         - La regla de seguridad limitará los libros visibles.
+         ========================================================== -->
     <record id="group_lector" model="res.groups">
         <field name="name">Lector</field>
         <field name="category_id" ref="module_category_biblioteca"/>
     </record>
 
-    <!-- Grupo Bibliotecario -->
+
+    <!-- ==========================================================
+         Grupo: Bibliotecario
+         - Puede crear y editar registros.
+         - NO hereda del grupo Lector para evitar que la regla
+           de registros también le aplique.
+         ========================================================== -->
     <record id="group_bibliotecario" model="res.groups">
         <field name="name">Bibliotecario</field>
         <field name="category_id" ref="module_category_biblioteca"/>
-        <field name="implied_ids" eval="[(4, ref('group_lector'))]"/>
+    </record>
+
+
+    <!-- ==========================================================
+         Regla de registros
+         Los usuarios del grupo Lector únicamente podrán visualizar
+         los libros cuyo campo "disponible" sea True.
+         ========================================================== -->
+    <record id="rule_libro_solo_disponibles" model="ir.rule">
+        <field name="name">Lector solo ve libros disponibles</field>
+        <field name="model_id" ref="model_biblioteca_libro"/>
+        <field name="domain_force">[('disponible', '=', True)]</field>
+        <field name="groups" eval="[(4, ref('group_lector'))]"/>
     </record>
 
 </odoo>

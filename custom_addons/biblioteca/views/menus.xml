@@ -14,6 +14,13 @@
         parent="biblioteca_menu"
         action="biblioteca_libro_action"
         sequence="10"/>
+    
+    <menuitem
+        id="biblioteca_editorial_menu"
+        name="Editoriales"
+        parent="biblioteca_menu"
+        action="biblioteca_editorial_action"
+        sequence="15"/>
 
     <menuitem
         id="biblioteca_autor_menu"
