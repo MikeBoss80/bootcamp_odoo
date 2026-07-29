@@ -23,6 +23,12 @@ class Libro(models.Model):
 
     autor = fields.Many2one('biblioteca.autor', string='Autor', required=True)
 
+    editorial_id = fields.Many2one(
+        'biblioteca.editorial',
+        string='Editorial'
+    )
+
     fecha_publicacion = fields.Date(string='Fecha de publicación')
     fecha_ingreso = fields.Date(string='Fecha de ingreso', default=fields.Date.today)
 
+    
