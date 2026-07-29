@@ -1,3 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_biblioteca_libro_bibliotecario,biblioteca.libro.bibliotecario,model_biblioteca_libro,biblioteca.group_bibliotecario,1,1,1,0
 access_biblioteca_libro_lector,biblioteca.libro.lector,model_biblioteca_libro,biblioteca.group_lector,1,0,0,0
+access_biblioteca_autor_bibliotecario,biblioteca.autor.bibliotecario,model_biblioteca_autor,biblioteca.group_bibliotecario,1,1,1,0
+access_biblioteca_autor_lector,biblioteca.autor.lector,model_biblioteca_autor,biblioteca.group_lector,1,0,0,0

@@ -1,17 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="group_lector" model="res.groups">
-        <field name="name">Biblioteca / Lector</field>
+
+    <!-- Categoría de la aplicación -->
+    <record id="module_category_biblioteca" model="ir.module.category">
+        <field name="name">Biblioteca</field>
+        <field name="description">Gestión de Biblioteca</field>
+        <field name="sequence">30</field>
     </record>
 
+    <!-- Grupo Lector -->
+    <record id="group_lector" model="res.groups">
+        <field name="name">Lector</field>
+        <field name="category_id" ref="module_category_biblioteca"/>
+    </record>
+
+    <!-- Grupo Bibliotecario -->
     <record id="group_bibliotecario" model="res.groups">
-        <field name="name">Biblioteca / Bibliotecario</field>
+        <field name="name">Bibliotecario</field>
+        <field name="category_id" ref="module_category_biblioteca"/>
         <field name="implied_ids" eval="[(4, ref('group_lector'))]"/>
     </record>
 
-    <record id="rule_libro_solo_disponibles" model="ir.rule">
-        <field name="name">Lector: solo libros disponibles</field>
-        <field name="model_id" ref="model_biblioteca_libro"/>
-        <field name="domain_force">[('disponible', '=', True)]</field>
-        <field name="groups" eval="[(4, ref('group_lector'))]"/>
-    </record>
 </odoo>
