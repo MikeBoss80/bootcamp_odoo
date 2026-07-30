@@ -219,10 +219,10 @@ from . import autor
 
 ```powershell
 # Actualizar módulo biblioteca
-docker compose run --rm odoo -d postgres -u biblioteca --stop-after-init
+docker compose run --rm odoo -d bootcamp_odoo_dev -u biblioteca --stop-after-init
 
 # Shell interactivo de Odoo
-docker compose run --rm odoo shell -d postgres
+docker compose run --rm odoo shell -d bootcamp_odoo_dev
 
 # Dentro del shell:
 >>> env['biblioteca.autor']
@@ -331,10 +331,10 @@ class Libro(models.Model):
 
 ```powershell
 # Actualizar módulo para crear/actualizar tablas
-docker compose run --rm odoo -d postgres -u biblioteca --stop-after-init
+docker compose run --rm odoo -d bootcamp_odoo_dev -u biblioteca --stop-after-init
 
 # Shell interactivo
-docker compose run --rm odoo shell -d postgres
+docker compose run --rm odoo shell -d bootcamp_odoo_dev
 
 # Probar creación y búsqueda
 >>> libro = env['biblioteca.libro'].create({
@@ -478,7 +478,7 @@ ir.ui.view (tree)     ir.ui.view (form)
 
 ```powershell
 # Actualizar módulo con nuevas vistas/menús
-docker compose run --rm odoo -d postgres -u biblioteca --stop-after-init
+docker compose run --rm odoo -d bootcamp_odoo_dev -u biblioteca --stop-after-init
 
 # Reiniciar Odoo para ver cambios
 docker compose restart odoo
@@ -584,7 +584,7 @@ access_biblioteca_libro_lector,biblioteca.libro.lector,model_biblioteca_libro,bi
 
 ```powershell
 # Actualizar módulo con seguridad
-docker compose run --rm odoo -d postgres -u biblioteca --stop-after-init
+docker compose run --rm odoo -d bootcamp_odoo_dev -u biblioteca --stop-after-init
 
 docker compose restart odoo
 ```
