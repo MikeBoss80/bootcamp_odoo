@@ -52,7 +52,7 @@ Si prefieres evitar estos problemas, usa **Docker** o **WSL2** en Windows, donde
 | Semana | Tema | Archivo |
 |--------|------|---------|
 | 1 | Comprender Odoo (arquitectura, módulos, ORM, vistas, seguridad) | [semana1.md](semana1.md) |
-| 2 | *(próximamente)* | |
+| 2 | Desarrollo (ORM avanzado, relaciones, vistas heredadas, campos computados y wizards) | [semana2.md](semana2.md) |
 
 ## Comandos comunes
 

@@ -31,4 +31,10 @@ class Libro(models.Model):
     fecha_publicacion = fields.Date(string='Fecha de publicación')
     fecha_ingreso = fields.Date(string='Fecha de ingreso', default=fields.Date.today)
 
+    def action_marcar_no_disponible(self):
+        self.write({
+            "disponible": False
+        })
+        return True
+
     
