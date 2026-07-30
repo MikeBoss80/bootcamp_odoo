@@ -36,13 +36,12 @@ Odoo 17.0 tiene una limitación conocida en Windows: la compilación de SCSS a C
 ```powershell
 echo "import sass" > venv\Lib\site-packages\zz_preload_sass.pth
 ```
-
 Esto fuerza que `import sass as libsass` en `assetsbundle.py` de Odoo siempre tenga éxito, sin importar el orden de carga o el caché de bytecode (`.pyc`).
 
 **Nota:** si ya arrancaste Odoo antes de aplicar el fix, puede que la caché de assets en la base de datos tenga el CSS con error. Para limpiarla:
 
 ```powershell
-.\venv\Scripts\python -c "import psycopg2; c=psycopg2.connect(host='localhost',user='odoo',password='odoo',dbname='bootcamp_db'); cur=c.cursor(); cur.execute(\"DELETE FROM ir_attachment WHERE name LIKE '%assets%'\"); c.commit(); c.close()"
+.\venv\Scripts\python -c "import psycopg2; c=psycopg2.connect(host='localhost',user='odoo',password='odoo',dbname='bootcamp_odoo_dev'); cur=c.cursor(); cur.execute(\"DELETE FROM ir_attachment WHERE name LIKE '%assets%'\"); c.commit(); c.close()"
 ```
 
 Si prefieres evitar estos problemas, usa **Docker** o **WSL2** en Windows, donde el comportamiento es idéntico al de Linux.
@@ -59,24 +58,24 @@ Si prefieres evitar estos problemas, usa **Docker** o **WSL2** en Windows, donde
 ```bash
 # Arrancar Odoo en modo desarrollo
 # Linux:
-python odoo/odoo-bin --addons-path=odoo/addons,custom_addons -d bootcamp_db --dev=all
+ docker compose up -d
 
 # Windows:
-.\venv\Scripts\python odoo/odoo-bin --addons-path=odoo/addons,custom_addons -d bootcamp_db --dev=all
+ docker compose up -d
 
 # Actualizar un módulo
-python odoo/odoo-bin -d bootcamp_db -u nombre_modulo --stop-after-init
+ docker compose run --rm odoo -d bootcamp_odoo_dev -u nombre_modulo --stop-after-init
 
 # Shell interactivo de Odoo
-python odoo/odoo-bin shell -d bootcamp_db
+ docker compose exec odoo odoo shell -d bootcamp_odoo_dev
 ```
 
 ## PostgreSQL con Docker
 
 ```bash
-docker run -d --name odoo-db -e POSTGRES_USER=odoo -e POSTGRES_PASSWORD=odoo -p 5432:5432 postgres:15
+ docker compose up -d
 ```
 
-Para detenerlo: `docker stop odoo-db`
-Para reiniciarlo: `docker start odoo-db`
-Para eliminarlo: `docker rm -f odoo-db`
+ Para detenerlo: `docker compose stop db`
+ Para reiniciarlo: `docker compose start db`
+ Para eliminarlo: `docker compose down`

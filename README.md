@@ -10,9 +10,9 @@ docker compose up -d
 docker compose logs -f odoo
 Ctrl + C para salir de los logs.
 📦 Actualizar todos los módulos desde terminal
-docker compose run --rm odoo -d postgres -u all --stop-after-init
+docker compose run --rm odoo -d bootcamp_odoo_dev -u all --stop-after-init
 docker compose restart odoo
-(Donde postgres es el nombre de tu base de datos en .env)
+(Donde bootcamp_odoo_dev es el nombre de tu base de datos en .env)
 ⚠️ No tocar si no quieres borrar datos
 - docker compose down -v → borra volúmenes (base de datos + archivos)
 - docker rmi bootcamp_odoo-odoo → borra la imagen
