@@ -12,7 +12,7 @@
 
         <field name="arch" type="xml">
 
-            <xpath expr="//sheet" position="inside">
+            <xpath expr="//sheet" position="inside">    
 
                 <group string="Información del sistema">
 
