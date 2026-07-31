@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+
+    <record id="biblioteca_libro_view_kanban" model="ir.ui.view">
+
+        <field name="name">biblioteca.libro.kanban</field>
+
+        <field name="model">biblioteca.libro</field>
+
+        <field name="arch" type="xml">
+
+            <kanban>
+
+                <field name="name"/>
+                <field name="isbn"/>
+                <field name="genero"/>
+                <field name="autor"/>
+                <field name="disponible"/>
+
+                <templates>
+
+                    <t t-name="kanban-box">
+
+                        <div class="oe_kanban_global_click">
+
+                            <div class="oe_kanban_details">
+
+                                <strong>
+                                    <field name="name"/>
+                                </strong>
+
+                                <div>
+                                    ISBN:
+                                    <field name="isbn"/>
+                                </div>
+
+                                <div>
+                                    Género:
+                                    <field name="genero"/>
+                                </div>
+
+                                <div>
+                                    Autor:
+                                    <field name="autor"/>
+                                </div>
+
+                                <div>
+                                    <field name="disponible"/>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </t>
+
+                </templates>
+
+            </kanban>
+
+        </field>
+
+    </record>
+
+</odoo>

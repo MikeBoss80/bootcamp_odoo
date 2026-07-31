@@ -22,6 +22,8 @@
         "views/autor_views.xml",
         "views/editorial_views.xml",
         "views/etiqueta_views.xml",
+        "views/libro_inherit_views.xml",
+        "views/libro_kanban_views.xml",
 
         "views/menus.xml",
     ],

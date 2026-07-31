@@ -40,9 +40,9 @@
         </field>
     </record>
 
-     <record id="biblioteca_libro_action" model="ir.actions.act_window">
+    <record id="biblioteca_libro_action" model="ir.actions.act_window">
         <field name="name">Libros</field>
         <field name="res_model">biblioteca.libro</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">kanban,tree,form</field>
     </record>
 </odoo>
