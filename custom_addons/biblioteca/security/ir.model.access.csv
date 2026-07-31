@@ -5,3 +5,5 @@ access_biblioteca_autor_bibliotecario,biblioteca.autor.bibliotecario,model_bibli
 access_biblioteca_autor_lector,biblioteca.autor.lector,model_biblioteca_autor,biblioteca.group_lector,1,0,0,0
 access_biblioteca_editorial_bibliotecario,biblioteca.editorial.bibliotecario,model_biblioteca_editorial,biblioteca.group_bibliotecario,1,1,1,0
 access_biblioteca_editorial_lector,biblioteca.editorial.lector,model_biblioteca_editorial,biblioteca.group_lector,1,0,0,0
+access_biblioteca_etiqueta_bibliotecario,biblioteca.etiqueta.bibliotecario,model_biblioteca_etiqueta,biblioteca.group_bibliotecario,1,1,1,0
+access_biblioteca_etiqueta_lector,biblioteca.etiqueta.lector,model_biblioteca_etiqueta,biblioteca.group_lector,1,0,0,0

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- -*- indent-tabs-mode: t -*- -->    
+<odoo>
+
+    <!-- ========================= -->
+    <!-- VISTA KANBAN ETIQUETAS -->
+    <!-- ========================= -->
+
+    <record id="biblioteca_etiqueta_view_kanban" model="ir.ui.view">
+
+        <field name="name">biblioteca.etiqueta.kanban</field>
+
+        <field name="model">biblioteca.etiqueta</field>
+
+        <field name="arch" type="xml">
+
+            <kanban>
+
+                <field name="name"/>
+                <field name="libros_ids"/>
+
+                <templates>
+
+                    <t t-name="kanban-box">
+
+                        <div class="oe_kanban_global_click">
+
+                            <div class="oe_kanban_details">
+
+                                <h3>
+                                    <field name="name"/>
+                                </h3>
+
+                                <div>
+                                    Libros asociados:
+                                </div>
+
+                                <field name="libros_ids"
+                                       widget="many2many_tags"/>
+
+                            </div>
+
+                        </div>
+
+                    </t>
+
+                </templates>
+
+            </kanban>
+
+        </field>
+
+    </record>
+
+
+    <!-- ========================= -->
+    <!-- VISTA LISTA ETIQUETAS -->
+    <!-- ========================= -->
+
+    <record id="biblioteca_etiqueta_view_tree" model="ir.ui.view">
+
+        <field name="name">biblioteca.etiqueta.tree</field>
+
+        <field name="model">biblioteca.etiqueta</field>
+
+        <field name="arch" type="xml">
+
+            <tree>
+                <field name="name"/>
+                <field name="libros_ids"
+                       widget="many2many_tags"/>
+            </tree>
+
+        </field>
+
+    </record>
+
+
+    <!-- ========================= -->
+    <!-- VISTA FORMULARIO ETIQUETA -->
+    <!-- ========================= -->
+
+    <record id="biblioteca_etiqueta_view_form" model="ir.ui.view">
+
+        <field name="name">biblioteca.etiqueta.form</field>
+
+        <field name="model">biblioteca.etiqueta</field>
+
+        <field name="arch" type="xml">
+
+            <form>
+
+                <sheet>
+
+                    <group>
+
+                        <field name="name"/>
+
+                    </group>
+
+
+                    <notebook>
+
+                        <page string="Libros">
+
+                            <field name="libros_ids">
+
+                                <tree>
+
+                                    <field name="name"/>
+                                    <field name="isbn"/>
+                                    <field name="genero"/>
+                                    <field name="autor"/>
+
+                                </tree>
+
+                            </field>
+
+                        </page>
+
+                    </notebook>
+
+                </sheet>
+
+            </form>
+        </field>
+    </record>
+
+
+    <!-- ========================= -->
+    <!-- ACCION -->
+    <!-- ========================= -->
+
+    <record id="biblioteca_etiqueta_action" model="ir.actions.act_window">
+        <field name="name">Etiquetas</field>
+
+        <field name="res_model">biblioteca.etiqueta</field>
+
+        <field name="view_mode">kanban,tree,form</field>
+    </record>
+</odoo>
