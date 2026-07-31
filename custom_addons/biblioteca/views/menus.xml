@@ -29,4 +29,12 @@
         action="biblioteca_autor_action"
         sequence="20"/>
 
+    <menuitem
+        id="biblioteca_etiqueta_menu"
+        name="Etiquetas"
+        parent="biblioteca_menu"
+        action="biblioteca_etiqueta_action"
+        sequence="25"
+    />
+
 </odoo>

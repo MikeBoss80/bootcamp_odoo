@@ -22,6 +22,25 @@
                         <field name="name"/>
                     </group>
                 </sheet>
+                <notebook>
+
+                    <page string="Libros">
+
+                        <field name="libros_ids">
+
+                            <tree>
+
+                                <field name="name"/>
+                                <field name="isbn"/>
+                                <field name="genero"/>
+
+                            </tree>
+
+                        </field>
+
+                    </page>
+
+                </notebook>
             </form>
         </field>
     </record>
