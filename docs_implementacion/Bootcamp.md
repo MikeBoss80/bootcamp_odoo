@@ -52,6 +52,7 @@ Si prefieres evitar estos problemas, usa **Docker** o **WSL2** en Windows, donde
 |--------|------|---------|
 | 1 | Comprender Odoo (arquitectura, módulos, ORM, vistas, seguridad) | [semana1.md](semana1.md) |
 | 2 | Desarrollo (ORM avanzado, relaciones, vistas heredadas, campos computados y wizards) | [semana2.md](semana2.md) |
+| 3 | Integraciones y automatización (XML-RPC, APIs, controllers, cron, logs, debugging) | [guia_oficial_integraciones.md](guia_oficial_integraciones.md) |
 
 ## Comandos comunes
 
