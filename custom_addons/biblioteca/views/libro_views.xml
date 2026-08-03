@@ -29,9 +29,11 @@
                         <field name="isbn"/>
                         <field name="genero"/>
                         <field name="disponible"/>
+                        <field name="estado"/>
                         <field name="autor"/>
                         <field name="etiqueta_ids" widget="many2many_tags"/>
                         <field name="fecha_publicacion"/>
+                        <field name="antiguedad"/>
                         <field name="editorial_id"/>
                         <field name="fecha_ingreso"/>
                     </group>

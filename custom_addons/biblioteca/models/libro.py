@@ -10,6 +10,16 @@ class Libro(models.Model):
     name = fields.Char(string='Título', required=True)
     isbn = fields.Char(string='ISBN', required=True)
     disponible = fields.Boolean(string='Disponible', default=True)
+
+    estado = fields.Selection(
+        selection=[
+            ('disponible', 'Disponible'),
+            ('prestado', 'Prestado'),
+        ],
+        string='Estado',
+        compute='_compute_estado',
+    )
+
     genero =fields.Selection([
         ('ficcion', 'Ficción'),
         ('drama', 'Drama'),
@@ -36,9 +46,26 @@ class Libro(models.Model):
         string='Editorial'
     )
 
+    antiguedad = fields.Integer(
+        string="Años desde publicación",
+        compute="_compute_antiguedad",
+    )
+
     fecha_publicacion = fields.Date(string='Fecha de publicación')
     fecha_ingreso = fields.Date(string='Fecha de ingreso', default=fields.Date.today)
 
+    @api.depends('fecha_publicacion')
+    def _compute_antiguedad(self):
+        for libro in self:
+            if libro.fecha_publicacion:
+                libro.antiguedad = fields.Date.today().year - libro.fecha_publicacion.year
+            else:
+                libro.antiguedad = 0
+
+    @api.depends('disponible')
+    def _compute_estado(self):
+        for libro in self:
+            libro.estado = ('disponible' if libro.disponible else 'prestado')
 
     def action_marcar_disponible(self):
         self.write({
@@ -66,3 +93,15 @@ class Libro(models.Model):
             ('disponible', '=', True),
         ]
         return self.search(dominio)
+
+    @api.onchange('fecha_publicacion')
+    def _onchange_fecha_publicacion(self):
+        hoy = fields.Date.today()
+
+        if self.fecha_publicacion and self.fecha_publicacion > hoy:
+            return {
+                'warning': {
+                    'title': "Fecha de publicación inválida",
+                    'message': "La fecha de publicación no puede ser futura.",
+                }
+            }
