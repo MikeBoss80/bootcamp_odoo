@@ -28,7 +28,7 @@ models = xmlrpc.client.ServerProxy(
     f"{url}/xmlrpc/2/object"
 )
 
-
+"""
 libros = models.execute_kw(
     db,
     uid,
@@ -59,4 +59,51 @@ for libro in libros:
         "|",
         libro["isbn"]
     )
-    
+
+libro_id = models.execute_kw(
+    db,
+    uid,
+    password,
+    "biblioteca.libro",
+    "create",
+    [
+        {
+            "name": "El Principito",
+            "isbn": "978-3-16-148410-0",
+            'genero': 'ficcion',
+            "disponible": True,
+            'autor': 1
+        }
+    ]
+)
+
+
+models.execute_kw(
+    db,
+    uid,
+    password,
+    "biblioteca.libro",
+    "write",
+    [
+        [13],  # ID del libro a actualizar
+        {
+            "name": "El Nuevo Principito Pro",
+            "disponible": False
+        }
+    ]
+)   
+
+eliminado = models.execute_kw(
+    db,
+    uid,
+    password,
+    "biblioteca.libro",
+    "unlink",
+    [
+        [13]
+    ]
+)
+
+print(eliminado)
+"""
+
