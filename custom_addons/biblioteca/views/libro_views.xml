@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    
     <record id="biblioteca_libro_view_tree" model="ir.ui.view">
         <field name="name">biblioteca.libro.tree</field>
         <field name="model">biblioteca.libro</field>
@@ -14,6 +15,7 @@
                 <field name="editorial_id"/>
                 <field name="fecha_publicacion"/>
                 <field name="fecha_ingreso"/>
+                <field name="api_response"/>
             </tree>
         </field>
     </record>
@@ -23,10 +25,21 @@
         <field name="model">biblioteca.libro</field>
         <field name="arch" type="xml">
             <form>
+
+                <header>
+                    <button
+                        name="action_consultar_api"
+                        type="object"
+                        string="Consultar API"
+                        class="btn-primary"
+                    />
+                </header>
+
                 <sheet>
                     <group>
                         <field name="name"/>
                         <field name="isbn"/>
+                        <field name='descripcion'/>
                         <field name="genero"/>
                         <field name="disponible"/>
                         <field name="estado"/>
