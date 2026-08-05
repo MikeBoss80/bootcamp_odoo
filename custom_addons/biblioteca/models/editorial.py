@@ -14,7 +14,6 @@ class Editorial(models.Model):
 
     pais = fields.Char(
         string='País',
-        required=True
     )
 
 

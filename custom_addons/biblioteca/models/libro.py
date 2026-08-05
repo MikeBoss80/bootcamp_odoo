@@ -1,7 +1,7 @@
 from odoo import models, fields, api
 import logging
 
-from ..services.google_books import GoogleBooksService
+from ..services.google_books import GoogleBooksError, GoogleBooksService
 
 
 _logger = logging.getLogger(__name__)
@@ -14,8 +14,7 @@ class Libro(models.Model):
 
 
     name = fields.Char(
-        string='Título',
-        required=True
+        string='Título'
     )
 
     descripcion = fields.Text(
@@ -53,8 +52,7 @@ class Libro(models.Model):
             ('misterio', 'Misterio'),
             ('terror', 'Terror'),
         ],
-        string='Género',
-        required=True
+        string='Género'
     )
 
 
@@ -69,8 +67,7 @@ class Libro(models.Model):
 
     autor = fields.Many2one(
         'biblioteca.autor',
-        string='Autor',
-        required=True
+        string='Autor'
     )
 
 
@@ -203,79 +200,74 @@ class Libro(models.Model):
 
     def action_consultar_api(self):
 
-        _logger.info(
-            '========== ENTRO ACTION_CONSULTAR_API =========='
-        )
+        _logger.info('========== ENTRO ACTION_CONSULTAR_API ==========')
 
+        incompletos = []
+        errores = []
 
         for libro in self:
 
-
             if not libro.isbn:
+                _logger.warning('Libro sin ISBN, se omite: %s', libro.name)
+                continue
 
-                return {
-                    'warning': {
-                        'title': 'ISBN requerido',
-                        'message': (
-                            'Debe ingresar un ISBN.'
-                        )
-                    }
-                }
-
-
-
-            datos = GoogleBooksService.obtener_libro(
-                libro.isbn
-            )
-
-
-            _logger.info(
-                'RESPUESTA GOOGLE BOOKS: %s',
-                datos
-            )
-
-
+            try:
+                datos = GoogleBooksService.obtener_libro(libro.isbn)
+            except GoogleBooksError as e:
+                _logger.warning('Error en %s: %s', libro.isbn, e)
+                errores.append(str(e))
+                continue
 
             if not datos:
+                _logger.warning('Sin resultados en Google Books para: %s', libro.name)
+                continue
 
-                return {
-                    'warning': {
-                        'title': 'Sin resultados',
-                        'message': (
-                            'No se encontró '
-                            'información del libro.'
-                        )
-                    }
-                }
-
-
-
-            autor = self._obtener_o_crear_autor(
-                datos.get('autor')
-            )
-
-
+            autor = self._obtener_o_crear_autor(datos.get('autor'))
+            editorial = self._obtener_o_crear_editorial(datos.get('editorial'))
 
             vals = {
                 'name': datos.get('name'),
                 'descripcion': datos.get('descripcion'),
                 'fecha_publicacion': datos.get('fecha_publicacion'),
+                'genero': datos.get('genero'),
                 'api_response': datos.get('api_response'),
             }
 
             if autor:
                 vals['autor'] = autor.id
+            if editorial:
+                vals['editorial_id'] = editorial.id
 
             libro.write(vals)
 
+            if not libro.name:
+                incompletos.append(libro.isbn)
+
+        if errores:
+
+            return {
+                'warning': {
+                    'title': 'Error al consultar Google Books',
+                    'message': '; '.join(errores),
+                }
+            }
+
+        if incompletos:
+
+            return {
+                'warning': {
+                    'title': 'Autocompletado parcial',
+                    'message': (
+                        'No se pudo completar el título de: %s. '
+                        'Verifique el ISBN o complete los datos manualmente.'
+                    ) % ', '.join(incompletos)
+                }
+            }
 
         return True
 
 
-
-
     def _obtener_o_crear_autor(self, nombre):
-
 
         if not nombre:
 
@@ -307,3 +299,20 @@ class Libro(models.Model):
 
 
         return autor
+
+    def _obtener_o_crear_editorial(self, nombre):
+
+        if not nombre:
+            return False
+
+        editorial = self.env['biblioteca.editorial'].search(
+            [('name', '=', nombre)], limit=1
+        )
+
+        if not editorial:
+            editorial = self.env['biblioteca.editorial'].create({
+                'name': nombre,
+                'pais': '',
+            })
+
+        return editorial

@@ -1,5 +1,10 @@
 import requests
 import json
+import re
+
+class GoogleBooksError(Exception):
+    """Excepción personalizada para errores relacionados con la API de Google Books."""
+    pass
 
 
 class GoogleBooksService:
@@ -10,24 +15,53 @@ class GoogleBooksService:
     @classmethod
     def buscar_por_isbn(cls, isbn):
 
+        isbn_normalizado = cls._normalizar_isbn(isbn)
+
         try:
 
             response = requests.get(
                 cls.BASE_URL,
                 params={
-                    "q": f"isbn:{isbn}"
+                    "q": f"isbn:{isbn_normalizado}"
                 },
                 timeout=10
             )
-
             response.raise_for_status()
-
             return response.json()
 
+        except requests.exceptions.Timeout:
+            raise GoogleBooksError(
+                "Google Books tardó demasiado en responder. Intente de nuevo."
+            )
 
-        except requests.exceptions.RequestException:
-            return {}
+        except requests.exceptions.ConnectionError:
+            raise GoogleBooksError(
+                "No se pudo conectar con Google Books. Verifique el acceso a Internet."
+            )
 
+        except requests.exceptions.HTTPError as e:
+            status = e.response.status_code if e.response is not None else None
+            if status == 429:
+                raise GoogleBooksError(
+                    "Límite de cuota de Google Books alcanzado (429). "
+                    "Espere a que se restablezca o agregue una API key."
+                )
+            if status == 403:
+                raise GoogleBooksError(
+                    "Acceso denegado por Google Books (403). "
+                    "Verifique permisos o la API key."
+                )
+            raise GoogleBooksError(
+                f"Google Books respondió con un error HTTP {status}."
+            )
+            
+
+    @staticmethod
+    def _normalizar_isbn(isbn):
+        if not isbn:
+            return isbn
+        return re.sub(r"[^0-9Xx]", "", isbn)
+    
 
     @staticmethod
     def normalizar_fecha(fecha):
