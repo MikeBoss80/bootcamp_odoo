@@ -17,6 +17,8 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: odoo-app
+    environment:
+      - GOOGLE_BOOKS_API_KEY=${GOOGLE_BOOKS_API_KEY}
     depends_on:
       - db
     restart: unless-stopped

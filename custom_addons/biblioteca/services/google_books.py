@@ -13,17 +13,20 @@ class GoogleBooksService:
 
 
     @classmethod
-    def buscar_por_isbn(cls, isbn):
+    def buscar_por_isbn(cls, isbn, api_key=None):
 
         isbn_normalizado = cls._normalizar_isbn(isbn)
+
+        params = {"q": f"isbn:{isbn_normalizado}"}
+
+        if api_key:
+            params["key"] = api_key
 
         try:
 
             response = requests.get(
                 cls.BASE_URL,
-                params={
-                    "q": f"isbn:{isbn_normalizado}"
-                },
+                params=params,
                 timeout=10
             )
             response.raise_for_status()
@@ -83,9 +86,9 @@ class GoogleBooksService:
 
 
     @classmethod
-    def obtener_libro(cls, isbn):
+    def obtener_libro(cls, isbn, api_key=None):
 
-        data = cls.buscar_por_isbn(isbn)
+        data = cls.buscar_por_isbn(isbn, api_key=api_key)
 
         items = data.get("items", [])
 

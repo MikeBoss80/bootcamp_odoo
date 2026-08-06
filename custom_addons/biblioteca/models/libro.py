@@ -1,5 +1,6 @@
 from odoo import models, fields, api
-import logging
+import logging, os
+
 
 from ..services.google_books import GoogleBooksError, GoogleBooksService
 
@@ -205,6 +206,8 @@ class Libro(models.Model):
         incompletos = []
         errores = []
 
+        api_key = os.environ.get('GOOGLE_BOOKS_API_KEY')
+
         for libro in self:
 
             if not libro.isbn:
@@ -212,7 +215,10 @@ class Libro(models.Model):
                 continue
 
             try:
-                datos = GoogleBooksService.obtener_libro(libro.isbn)
+                datos = GoogleBooksService.obtener_libro(
+                    libro.isbn,
+                    api_key=api_key
+                )
             except GoogleBooksError as e:
                 _logger.warning('Error en %s: %s', libro.isbn, e)
                 errores.append(str(e))
