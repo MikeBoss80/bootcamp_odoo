@@ -199,79 +199,114 @@ class Libro(models.Model):
 
 
 
-    def action_consultar_api(self):
-
-        _logger.info('========== ENTRO ACTION_CONSULTAR_API ==========')
+    def _consultar_google_books(self):
+        api_key = os.environ.get("GOOGLE_BOOKS_API_KEY")
 
         incompletos = []
         errores = []
 
-        api_key = os.environ.get('GOOGLE_BOOKS_API_KEY')
-
         for libro in self:
 
             if not libro.isbn:
-                _logger.warning('Libro sin ISBN, se omite: %s', libro.name)
+                _logger.warning(
+                    "Libro sin ISBN, se omite: %s",
+                    libro.name
+                )
                 continue
 
             try:
                 datos = GoogleBooksService.obtener_libro(
                     libro.isbn,
-                    api_key=api_key
+                    #api_key=api_key
                 )
+
             except GoogleBooksError as e:
-                _logger.warning('Error en %s: %s', libro.isbn, e)
+
+                _logger.warning(
+                    "Error en %s: %s",
+                    libro.isbn,
+                    e
+                )
+
                 errores.append(str(e))
                 continue
 
+
             if not datos:
-                _logger.warning('Sin resultados en Google Books para: %s', libro.name)
+
+                _logger.warning(
+                    "Sin resultados para %s",
+                    libro.isbn
+                )
+
                 continue
 
-            autor = self._obtener_o_crear_autor(datos.get('autor'))
-            editorial = self._obtener_o_crear_editorial(datos.get('editorial'))
+
+            autor = self._obtener_o_crear_autor(
+                datos.get("autor")
+            )
+
+            editorial = self._obtener_o_crear_editorial(
+                datos.get("editorial")
+            )
+
 
             vals = {
-                'name': datos.get('name'),
-                'descripcion': datos.get('descripcion'),
-                'fecha_publicacion': datos.get('fecha_publicacion'),
-                'genero': datos.get('genero'),
-                'api_response': datos.get('api_response'),
+
+                "name": datos.get("name"),
+
+                "descripcion": datos.get("descripcion"),
+
+                "fecha_publicacion": datos.get("fecha_publicacion"),
+
+                "genero": datos.get("genero"),
+
+                "api_response": datos.get("api_response"),
+
             }
 
+
             if autor:
-                vals['autor'] = autor.id
+                vals["autor"] = autor.id
+
             if editorial:
-                vals['editorial_id'] = editorial.id
+                vals["editorial_id"] = editorial.id
+
 
             libro.write(vals)
+
 
             if not libro.name:
                 incompletos.append(libro.isbn)
 
+        return errores, incompletos
+
+    def action_consultar_api(self):
+        _logger.info("Consulta manual desde formulario")
+
+        errores, incompletos = self._consultar_google_books()
+
         if errores:
 
             return {
-                'warning': {
-                    'title': 'Error al consultar Google Books',
-                    'message': '; '.join(errores),
+                "warning": {
+                    "title": "Error al consultar Google Books",
+                    "message": "; ".join(errores),
                 }
             }
 
         if incompletos:
 
             return {
-                'warning': {
-                    'title': 'Autocompletado parcial',
-                    'message': (
-                        'No se pudo completar el título de: %s. '
-                        'Verifique el ISBN o complete los datos manualmente.'
-                    ) % ', '.join(incompletos)
+                "warning": {
+                    "title": "Autocompletado parcial",
+                    "message": (
+                        "No se pudo completar el título de: %s"
+                    ) % ", ".join(incompletos)
                 }
             }
 
         return True
-
 
     def _obtener_o_crear_autor(self, nombre):
 
@@ -322,3 +357,39 @@ class Libro(models.Model):
             })
 
         return editorial
+
+    
+    def cron_actualizar_libros_api(self):
+        _logger.info("=== Inicio cron Google Books ===")
+
+        libros = self.search([
+            ('isbn', '!=', False),
+            ('name', '=', False),
+        ])
+
+        if not libros:
+            _logger.info("No hay libros pendientes por actualizar.")
+            return True
+            
+        _logger.info(
+            "Se encontraron %s libros pendientes.",
+            len(libros)
+        )
+
+        errores, incompletos = libros._consultar_google_books()
+
+        if errores:
+            _logger.warning(
+                "Errores: %s",
+                "; ".join(errores)
+            )
+
+        if incompletos:
+            _logger.warning(
+                "Libros incompletos: %s",
+                ", ".join(incompletos)
+            )
+
+        _logger.info("=== Fin cron Google Books ===")
+
+        return True
