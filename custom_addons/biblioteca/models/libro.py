@@ -222,12 +222,13 @@ class Libro(models.Model):
 
             except GoogleBooksError as e:
 
-                _logger.warning(
-                    "Error en %s: %s",
+                _logger.error(
+                    "Falló consulta Google Books. ISBN: %s | Error: %s",
                     libro.isbn,
                     e
                 )
 
+                
                 errores.append(str(e))
                 continue
 
@@ -367,10 +368,6 @@ class Libro(models.Model):
             ('name', '=', False),
         ])
 
-        if not libros:
-            _logger.info("No hay libros pendientes por actualizar.")
-            return True
-            
         _logger.info(
             "Se encontraron %s libros pendientes.",
             len(libros)
@@ -380,14 +377,14 @@ class Libro(models.Model):
 
         if errores:
             _logger.warning(
-                "Errores: %s",
-                "; ".join(errores)
+                "Errores encontrados: %s",
+                errores
             )
 
         if incompletos:
             _logger.warning(
                 "Libros incompletos: %s",
-                ", ".join(incompletos)
+                incompletos
             )
 
         _logger.info("=== Fin cron Google Books ===")
