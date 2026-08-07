@@ -18,6 +18,8 @@
         "security/biblioteca_security.xml",
         "security/ir.model.access.csv",
 
+        "data/ir_cron.xml",
+        
         "views/libro_views.xml",
         "views/autor_views.xml",
         "views/editorial_views.xml",

@@ -1,6 +1,10 @@
 import requests
 import json
 import re
+import logging
+
+logging.basicConfig(level=logging.INFO)
+_logger = logging.getLogger(__name__)
 
 class GoogleBooksError(Exception):
     """Excepción personalizada para errores relacionados con la API de Google Books."""
@@ -23,13 +27,23 @@ class GoogleBooksService:
             params["key"] = api_key
 
         try:
-
+            _logger.info(
+                "Consultando Google Books ISBN: %s",
+                isbn_normalizado
+            )
             response = requests.get(
                 cls.BASE_URL,
                 params=params,
                 timeout=10
             )
             response.raise_for_status()
+
+            _logger.info(
+                "Respuesta exitosa de Google Books. ISBN: %s | Status: %s",
+                isbn_normalizado,
+                response.status_code
+            )
+
             return response.json()
 
         except requests.exceptions.Timeout:
@@ -57,7 +71,10 @@ class GoogleBooksService:
             raise GoogleBooksError(
                 f"Google Books respondió con un error HTTP {status}."
             )
-            
+        except ValueError:
+            raise GoogleBooksError(
+                "Google Books devolvió una respuesta inválida."
+            )    
 
     @staticmethod
     def _normalizar_isbn(isbn):
