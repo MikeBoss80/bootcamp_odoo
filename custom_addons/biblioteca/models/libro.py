@@ -217,7 +217,7 @@ class Libro(models.Model):
             try:
                 datos = GoogleBooksService.obtener_libro(
                     libro.isbn,
-                    #api_key=api_key
+                    api_key=api_key
                 )
 
             except GoogleBooksError as e:
