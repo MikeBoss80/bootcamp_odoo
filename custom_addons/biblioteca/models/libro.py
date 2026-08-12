@@ -359,7 +359,7 @@ class Libro(models.Model):
 
         return editorial
 
-    
+    @api.model
     def cron_actualizar_libros_api(self):
         _logger.info("=== Inicio cron Google Books ===")
 
