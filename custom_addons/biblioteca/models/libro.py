@@ -13,6 +13,22 @@ class Libro(models.Model):
     _description = 'Libro'
     _rec_name = 'name'
 
+    _sql_constraints = [
+        'external_id_unique',
+        'UNIQUE(external_id)',
+        'El ID externo ya existe en otro libro.'
+
+    ]
+
+    external_id = fields.Char(
+        string='ID externo'
+        index=True
+        copy=False
+        readonly=True
+        help='ID externo del libro en el sistema de origen'
+    )
+
+
 
     name = fields.Char(
         string='Título'
@@ -197,7 +213,42 @@ class Libro(models.Model):
                 }
             }
 
+    def _preparar_vals_google_books(self, datos):
 
+        self.ensure_one()
+
+        
+            autor = self._obtener_o_crear_autor(
+                datos.get("autor")
+            )
+
+            editorial = self._obtener_o_crear_editorial(
+                datos.get("editorial")
+            )
+
+
+            vals = {
+
+                "name": datos.get("name"),
+
+                "descripcion": datos.get("descripcion"),
+
+                "fecha_publicacion": datos.get("fecha_publicacion"),
+
+                "genero": datos.get("genero"),
+
+                "api_response": datos.get("api_response"),
+
+            }
+
+
+            if autor:
+                vals["autor"] = autor.id
+
+            if editorial:
+                vals["editorial_id"] = editorial.id
+
+            return vals
 
     def _consultar_google_books(self):
         api_key = os.environ.get("GOOGLE_BOOKS_API_KEY")
@@ -242,38 +293,28 @@ class Libro(models.Model):
 
                 continue
 
+            external_id = datos.get("external_id")
 
-            autor = self._obtener_o_crear_autor(
-                datos.get("autor")
+            if not external_id:
+            _logger.warning(
+                "Google Books no devolvió external_id para ISBN %s",
+                libro.isbn
+            )
+            errores.append(
+                "Google Books no devolvió un ID externo para ISBN %s"
+                % libro.isbn
+            )
+            continue
+
+
+            conflicto = libro._verificar_conflicto_external_id(
+            external_id
             )
 
-            editorial = self._obtener_o_crear_editorial(
-                datos.get("editorial")
+            vals = libro._preparar_vals_google_books(
+                datos
             )
-
-
-            vals = {
-
-                "name": datos.get("name"),
-
-                "descripcion": datos.get("descripcion"),
-
-                "fecha_publicacion": datos.get("fecha_publicacion"),
-
-                "genero": datos.get("genero"),
-
-                "api_response": datos.get("api_response"),
-
-            }
-
-
-            if autor:
-                vals["autor"] = autor.id
-
-            if editorial:
-                vals["editorial_id"] = editorial.id
-
-
+            
             libro.write(vals)
 
 
@@ -390,3 +431,29 @@ class Libro(models.Model):
         _logger.info("=== Fin cron Google Books ===")
 
         return True
+
+    
+
+    def _buscar_external_id(self, external_id):
+
+        return self.search([
+            ('external_id', '=', external_id)
+        ], limit=1)
+
+    def _verificar_conflicto_external_id(self, external_id):
+
+        self.ensure_one()
+
+        libro = self._buscar_external_id(external_id)
+
+        if libro and libro.id != self.id:
+
+            raise ValueError(
+                "El ID externo "%s" ya existe en otro libro."
+                 % (
+                    external_id,
+                    libro.display_name
+                )
+            )
+        
+        return libro
