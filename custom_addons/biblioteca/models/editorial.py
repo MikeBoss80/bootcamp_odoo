@@ -22,3 +22,10 @@ class Editorial(models.Model):
         'editorial_id',
         string='Libros'
     )
+    _sql_constraints = [
+        (
+            'editorial_name_unique',
+            'UNIQUE(name)',
+            'La editorial ya existe.'
+        )
+    ]

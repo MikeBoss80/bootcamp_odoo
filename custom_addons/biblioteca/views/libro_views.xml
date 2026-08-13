@@ -15,6 +15,7 @@
                 <field name="editorial_id"/>
                 <field name="fecha_publicacion"/>
                 <field name="fecha_ingreso"/>
+                <field name="estado_sincronizacion"/>
                 <field name="api_response"/>
             </tree>
         </field>
@@ -49,6 +50,9 @@
                         <field name="antiguedad"/>
                         <field name="editorial_id"/>
                         <field name="fecha_ingreso"/>
+                        <field name="estado_sincronizacion"/>
+                        <field name="ultima_sincronizacion"/>
+                        <field name="sync_error"/>
                     </group>
                 </sheet>
             </form>

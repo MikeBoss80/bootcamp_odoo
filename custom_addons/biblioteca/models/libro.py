@@ -1,5 +1,6 @@
 from odoo import models, fields, api
 import logging, os
+from psycopg2 import IntegrityError
 
 
 from ..services.google_books import GoogleBooksError, GoogleBooksService
@@ -14,21 +15,20 @@ class Libro(models.Model):
     _rec_name = 'name'
 
     _sql_constraints = [
-        'external_id_unique',
-        'UNIQUE(external_id)',
-        'El ID externo ya existe en otro libro.'
-
+        (
+            'external_id_unique',
+            'UNIQUE(external_id)',
+            'El ID externo ya existe en otro libro.'
+        )
     ]
 
     external_id = fields.Char(
-        string='ID externo'
-        index=True
-        copy=False
-        readonly=True
+        string='ID externo',
+        index=True,
+        copy=False,
+        readonly=True,
         help='ID externo del libro en el sistema de origen'
     )
-
-
 
     name = fields.Char(
         string='Título'
@@ -40,7 +40,8 @@ class Libro(models.Model):
 
     isbn = fields.Char(
         string='ISBN',
-        required=True
+        required=True,
+        index=True
     )
 
     disponible = fields.Boolean(
@@ -113,6 +114,32 @@ class Libro(models.Model):
 
     api_response = fields.Text(
         string='Respuesta API'
+    )
+
+
+    estado_sincronizacion = fields.Selection(
+        selection=[
+            ('pendiente', 'Pendiente'),
+            ('sincronizando', 'Sincronizando'),
+            ('sincronizado', 'Sincronizado'),
+            ('error', 'Error'),
+        ],
+        string='Estado de sincronización',
+        default='pendiente',
+        readonly=True,
+        copy=False,
+    )
+
+    ultima_sincronizacion = fields.Datetime(
+        string='Última sincronización',
+        readonly=True,
+        copy=False,
+    )
+
+    sync_error = fields.Text(
+        string='Error de sincronización',
+        readonly=True,
+        copy=False,
     )
 
 
@@ -217,7 +244,7 @@ class Libro(models.Model):
 
         self.ensure_one()
 
-        
+        if datos:
             autor = self._obtener_o_crear_autor(
                 datos.get("autor")
             )
@@ -226,9 +253,8 @@ class Libro(models.Model):
                 datos.get("editorial")
             )
 
-
             vals = {
-
+                "external_id": datos.get("external_id"),
                 "name": datos.get("name"),
 
                 "descripcion": datos.get("descripcion"),
@@ -238,9 +264,7 @@ class Libro(models.Model):
                 "genero": datos.get("genero"),
 
                 "api_response": datos.get("api_response"),
-
             }
-
 
             if autor:
                 vals["autor"] = autor.id
@@ -248,7 +272,7 @@ class Libro(models.Model):
             if editorial:
                 vals["editorial_id"] = editorial.id
 
-            return vals
+        return vals
 
     def _consultar_google_books(self):
         api_key = os.environ.get("GOOGLE_BOOKS_API_KEY")
@@ -265,6 +289,11 @@ class Libro(models.Model):
                 )
                 continue
 
+            libro.write({
+                'estado_sincronizacion': 'sincronizando',
+                'sync_error': False,
+            })
+
             try:
                 datos = GoogleBooksService.obtener_libro(
                     libro.isbn,
@@ -272,53 +301,73 @@ class Libro(models.Model):
                 )
 
             except GoogleBooksError as e:
-
                 _logger.error(
                     "Falló consulta Google Books. ISBN: %s | Error: %s",
                     libro.isbn,
                     e
                 )
-
-                
+                libro.write({
+                    'estado_sincronizacion': 'error',
+                    'sync_error': str(e),
+                })
                 errores.append(str(e))
                 continue
 
-
             if not datos:
-
                 _logger.warning(
                     "Sin resultados para %s",
                     libro.isbn
                 )
-
+                libro.write({
+                    'estado_sincronizacion': 'error',
+                    'sync_error': "Google Books no devolvió resultados.",
+                })
                 continue
 
             external_id = datos.get("external_id")
 
             if not external_id:
-            _logger.warning(
-                "Google Books no devolvió external_id para ISBN %s",
-                libro.isbn
-            )
-            errores.append(
-                "Google Books no devolvió un ID externo para ISBN %s"
-                % libro.isbn
-            )
-            continue
+                _logger.warning(
+                    "Google Books no devolvió external_id para ISBN %s",
+                    libro.isbn
+                )
+                mensaje = (
+                    "Google Books no devolvió un ID externo para ISBN %s"
+                    % libro.isbn
+                )
+                libro.write({
+                    'estado_sincronizacion': 'error',
+                    'sync_error': mensaje,
+                })
+                errores.append(mensaje)
+                continue
 
 
-            conflicto = libro._verificar_conflicto_external_id(
-            external_id
-            )
+            try:
+                conflicto = libro._verificar_conflicto_external_id(
+                    external_id
+                )
+            except ValueError as e:
+                libro.write({
+                    'estado_sincronizacion': 'error',
+                    'sync_error': str(e),
+                })
+                errores.append(str(e))
+                continue
 
             vals = libro._preparar_vals_google_books(
                 datos
             )
-            
+            vals.update({
+                'estado_sincronizacion': 'sincronizado',
+                'ultima_sincronizacion': fields.Datetime.now(),
+                'sync_error': False,
+            })
+
             libro.write(vals)
 
 
-            if not libro.name:
+            if not datos.get("name"):
                 incompletos.append(libro.isbn)
 
         return errores, incompletos
@@ -368,17 +417,24 @@ class Libro(models.Model):
         )
 
 
-
         if not autor:
 
-            autor = self.env[
-                'biblioteca.autor'
-            ].create({
-
-                'name': nombre
-
-            })
-
+            try:
+                with self.env.cr.savepoint():
+                    autor = self.env[
+                        'biblioteca.autor'
+                    ].create({
+                        'name': nombre
+                    })
+            except IntegrityError:
+                autor = self.env[
+                    'biblioteca.autor'
+                ].search(
+                    [('name', '=', nombre)],
+                    limit=1
+                )
+                if not autor:
+                    raise
 
 
         return autor
@@ -393,10 +449,18 @@ class Libro(models.Model):
         )
 
         if not editorial:
-            editorial = self.env['biblioteca.editorial'].create({
-                'name': nombre,
-                'pais': '',
-            })
+            try:
+                with self.env.cr.savepoint():
+                    editorial = self.env['biblioteca.editorial'].create({
+                        'name': nombre,
+                        'pais': '',
+                    })
+            except IntegrityError:
+                editorial = self.env['biblioteca.editorial'].search(
+                    [('name', '=', nombre)], limit=1
+                )
+                if not editorial:
+                    raise
 
         return editorial
 
@@ -407,6 +471,7 @@ class Libro(models.Model):
         libros = self.search([
             ('isbn', '!=', False),
             ('name', '=', False),
+            ('estado_sincronizacion', 'in', ['pendiente', 'error']),
         ])
 
         _logger.info(
@@ -449,8 +514,8 @@ class Libro(models.Model):
         if libro and libro.id != self.id:
 
             raise ValueError(
-                "El ID externo "%s" ya existe en otro libro."
-                 % (
+                "El ID externo '%s' ya existe en otro libro."
+                % (
                     external_id,
                     libro.display_name
                 )

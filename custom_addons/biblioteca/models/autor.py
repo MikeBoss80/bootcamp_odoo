@@ -7,3 +7,11 @@ class Autor(models.Model):
     name = fields.Char(string='Nombre', required=True)
 
     libros_ids = fields.One2many('biblioteca.libro', 'autor', string='Libros')
+
+    _sql_constraints = [
+        (
+            'autor_name_unique',
+            'UNIQUE(name)',
+            'El autor ya existe.'
+        )
+    ]
