@@ -29,6 +29,16 @@ services:
       - ./config/odoo.conf:/etc/odoo/odoo.conf
       - odoo_data:/var/lib/odoo
 
+  #conectar external-api
+  external-api:
+    build:
+      context: ./integrations/external_api
+      dockerfile: Dockerfile
+    container_name: external-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+
 volumes:
   postgres_data:
   odoo_data:
