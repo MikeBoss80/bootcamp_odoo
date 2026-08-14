@@ -120,7 +120,8 @@ class GoogleBooksService:
 
 
         return {
-
+            "external_id": items[0].get("id"),
+            
             "name": info.get(
                 "title"
             ),

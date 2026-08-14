@@ -2,6 +2,7 @@ import json
 
 from odoo import http
 from odoo.http import request, Response
+from psycopg2 import IntegrityError
 
 class BibliotecaAPIController(http.Controller):
 
@@ -22,9 +23,17 @@ class BibliotecaAPIController(http.Controller):
                 [('name', '=', data['autor'])], limit=1
             )
             if not autor:
-                autor = request.env['biblioteca.autor'].create({
-                    'name': data['autor']
-                })
+                try:
+                    with request.env.cr.savepoint():
+                        autor = request.env['biblioteca.autor'].create({
+                            'name': data['autor']
+                        })
+                except IntegrityError:
+                    autor = request.env['biblioteca.autor'].search(
+                        [('name', '=', data['autor'])], limit=1
+                    )
+                    if not autor:
+                        raise
 
         editorial = False
         if data.get('editorial_id'):
@@ -36,9 +45,17 @@ class BibliotecaAPIController(http.Controller):
                 [('name', '=', data['editorial'])], limit=1
             )
             if not editorial:
-                editorial = request.env['biblioteca.editorial'].create({
-                    'name': data['editorial'], 'pais': ''
-                })
+                try:
+                    with request.env.cr.savepoint():
+                        editorial = request.env['biblioteca.editorial'].create({
+                            'name': data['editorial'], 'pais': ''
+                        })
+                except IntegrityError:
+                    editorial = request.env['biblioteca.editorial'].search(
+                        [('name', '=', data['editorial'])], limit=1
+                    )
+                    if not editorial:
+                        raise
 
         libro = request.env['biblioteca.libro'].create({
             'name': data.get('name'),
